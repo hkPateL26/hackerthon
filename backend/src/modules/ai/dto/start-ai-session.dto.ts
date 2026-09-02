@@ -25,4 +25,10 @@ export class StartAiSessionDto {
   @Min(0.1)
   @Max(1.0)
   confidenceThreshold?: number = 0.5;
+
+  @ApiPropertyOptional({
+    description: 'Custom video source URL or file path override',
+  })
+  @IsOptional()
+  sourceUrl?: string;
 }

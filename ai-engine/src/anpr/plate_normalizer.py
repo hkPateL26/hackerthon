@@ -90,8 +90,11 @@ def validate_indian_plate(raw_text: str, confidence: float = 1.0) -> Tuple[Valid
     Returns (ValidationStatus, normalized_text).
     """
     normalized = normalize_plate_text(raw_text)
-    if not normalized:
-        return ValidationStatus.INVALID_FORMAT, ""
+    # Strip leading border artifact (e.g. 'I' or '1' from left border line: 'IGJ01AB1234' -> 'GJ01AB1234')
+    if len(normalized) > 10 and normalized[0] in ('I', '1', 'L', 'T', 'J') and normalized[1:3] in INDIAN_STATE_CODES:
+        normalized = normalized[1:]
+    elif len(normalized) > 10 and normalized[-1] in ('I', '1', 'L', 'T', 'J') and normalized[:2] in INDIAN_STATE_CODES:
+        normalized = normalized[:-1]
 
     # Check direct match with standard Indian registration
     if STANDARD_INDIAN_PATTERN.match(normalized):

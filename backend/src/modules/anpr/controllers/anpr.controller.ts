@@ -10,10 +10,11 @@ import {
   HttpCode,
   HttpStatus,
   Res,
+  Req,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import * as path from 'path';
 import * as fs from 'fs';
 import { AnprService } from '../services/anpr.service.js';
@@ -61,12 +62,21 @@ export class AnprController {
    * Safe delivery of ANPR snapshots (plate crops / vehicle snapshots)
    */
   @Get('snapshots/*')
-  async serveSnapshot(@Param() params: any, @Res() res: Response): Promise<void> {
-    const rawSubpath = params[0] || '';
-    // Prevent path traversal
-    const safePath = path.normalize(rawSubpath).replace(/^(\.\.[\/\\])+/, '');
-    const baseDir = path.resolve(process.cwd(), 'runtime', 'anpr');
-    const fullPath = path.resolve(baseDir, safePath);
+  async serveSnapshot(
+    @Req() req: Request,
+    @Param() params: any,
+    @Res() res: Response,
+  ): Promise<void> {
+    const rawSubpath = req.url.includes('/snapshots/')
+      ? req.url.split('/snapshots/')[1]
+      : params['0'] || params[0] || '';
+    const cleanSubpath = path.normalize(rawSubpath.split('?')[0]).replace(/^(\.\.[\/\\])+/, '');
+
+    const rootDir = fs.existsSync(path.resolve(process.cwd(), 'runtime'))
+      ? process.cwd()
+      : path.resolve(process.cwd(), '..');
+    const baseDir = path.resolve(rootDir, 'runtime', 'anpr');
+    const fullPath = path.resolve(baseDir, cleanSubpath);
 
     if (!fullPath.startsWith(baseDir)) {
       throw new BadRequestException('Access denied: directory traversal detected');
@@ -98,6 +108,29 @@ export class AnprController {
   @Roles(RoleName.ADMIN, RoleName.SUPERVISOR, RoleName.OPERATOR)
   async findAll(@Query() query: QueryAnprDto): Promise<PaginatedAnprResponseDto> {
     return this.anprService.findAll(query);
+  }
+
+  /**
+   * Search plates by normalized or raw plate text
+   */
+  @Get('search')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleName.ADMIN, RoleName.SUPERVISOR, RoleName.OPERATOR)
+  async searchPlates(
+    @Query('q') q?: string,
+    @Query('plate') plate?: string,
+    @Query('limit') limit?: number,
+  ): Promise<PaginatedAnprResponseDto> {
+    const searchTerm = q || plate || '';
+    const take = limit ? Number(limit) : 20;
+    const items = await this.anprService.searchPlates(searchTerm, take);
+    return {
+      items,
+      total: items.length,
+      page: 1,
+      limit: take,
+      totalPages: 1,
+    };
   }
 
   /**

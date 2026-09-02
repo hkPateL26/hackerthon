@@ -49,7 +49,7 @@ class AnprManager:
         self.camera_id = camera_id
         self.session_id = session_id
         self.backend_url = (backend_url or os.getenv("BACKEND_URL", "http://localhost:3000")).rstrip("/")
-        self.service_key = service_key or os.getenv("AI_SERVICE_KEY", "dev-ai-service-key-change-in-production")
+        self.service_key = service_key or os.getenv("AI_SERVICE_KEY", "gujarat_police_internal_ai_key_2026")
         self.sample_interval = sample_interval
         self.track_cooldown = track_cooldown
 
@@ -205,9 +205,6 @@ class AnprManager:
                 track_state.best_confidence = max(track_state.best_confidence, final_conf)
                 track_state.detection_count += 1
 
-            # 7. Asynchronously synchronize with NestJS backend
-            asyncio.create_task(self.sync_to_backend([observation]))
-
             logger.info(
                 f"[ANPR] Recognized plate '{ocr_res.normalized_text}' (raw: '{ocr_res.raw_text}') "
                 f"status={ocr_res.validation_status.value} conf={final_conf:.2f} "
@@ -219,6 +216,30 @@ class AnprManager:
         except Exception as e:
             logger.warning(f"ANPR processing error on vehicle: {e}", exc_info=False)
             return None
+
+    async def process_vehicle_async(
+        self,
+        frame: np.ndarray,
+        vehicle_bbox: Tuple[float, float, float, float],
+        vehicle_confidence: float,
+        vehicle_class: str,
+        track_id: Optional[int] = None,
+    ) -> Optional[AnprObservation]:
+        """
+        Async entrypoint executing CPU-bound plate localization and OCR in worker thread,
+        and dispatching backend synchronization in the async event loop.
+        """
+        obs = await asyncio.to_thread(
+            self.process_vehicle,
+            frame,
+            vehicle_bbox,
+            vehicle_confidence,
+            vehicle_class,
+            track_id,
+        )
+        if obs is not None:
+            asyncio.create_task(self.sync_to_backend([obs]))
+        return obs
 
     async def sync_to_backend(self, observations: List[AnprObservation]) -> bool:
         """Dispatches ANPR observations to NestJS backend POST /api/anpr/sync."""

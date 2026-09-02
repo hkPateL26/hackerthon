@@ -76,7 +76,7 @@ class TrackManager:
         Useful for tagging Phase 7 detection events with track_id.
         """
         best_id: Optional[int] = None
-        best_iou: float = 0.4
+        best_iou: float = 0.20
 
         for trk in self.tracker.tracks.values():
             if trk.category == det.category:

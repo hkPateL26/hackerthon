@@ -81,7 +81,7 @@ class PlateDetector:
             roi_y1, roi_x1 = 0, 0
 
         # Computer vision contour & edge candidate search
-        best_candidate = self._find_contour_candidate(roi)
+        best_candidate = self._find_contour_candidate(roi, vw, vh)
 
         if best_candidate is not None:
             cx, cy, cw, ch = best_candidate
@@ -125,57 +125,82 @@ class PlateDetector:
             vehicle_class=vehicle_class,
         )
 
-    def _find_contour_candidate(self, roi: np.ndarray) -> Optional[Tuple[int, int, int, int]]:
+    def _find_contour_candidate(self, roi: np.ndarray, vehicle_w: int, vehicle_h: int) -> Optional[Tuple[int, int, int, int]]:
         """
-        Applies morphological filtering and contour detection to locate rectangular plate candidate.
+        Applies brightness thresholding (primary for reflective plates) with morphological
+        edge fallback to reliably locate the rectangular license plate candidate.
         """
         if roi.shape[0] < 15 or roi.shape[1] < 30:
             return None
 
+        roi_h, roi_w = roi.shape[:2]
         gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
 
-        # Sobel vertical edge filter (captures dense vertical character strokes)
+        # Stage 1: Brightness segmentation (standard for reflective license plates)
+        _, bright_thresh = cv2.threshold(gray, 180, 255, cv2.THRESH_BINARY)
+        contours, _ = cv2.findContours(bright_thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        best_rect = self._evaluate_candidates(contours, roi_w, roi_h, vehicle_w)
+        if best_rect is not None:
+            return best_rect
+
+        # Stage 2: Morphological Sobel vertical edge fallback
         grad_x = cv2.Sobel(gray, cv2.CV_16S, 1, 0, ksize=3)
         abs_grad_x = cv2.convertScaleAbs(grad_x)
-
-        # Morphological closing with horizontal rectangular kernel to connect characters
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (17, 3))
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (15, 3))
         closed = cv2.morphologyEx(abs_grad_x, cv2.MORPH_CLOSE, kernel)
+        _, edge_thresh = cv2.threshold(closed, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-        # Otsu thresholding
-        _, thresh = cv2.threshold(closed, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        edge_contours, _ = cv2.findContours(edge_thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        return self._evaluate_candidates(edge_contours, roi_w, roi_h, vehicle_w)
 
-        # Find external contours
-        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
+    def _evaluate_candidates(
+        self,
+        contours,
+        roi_w: int,
+        roi_h: int,
+        vehicle_w: int,
+    ) -> Optional[Tuple[int, int, int, int]]:
+        """Evaluates contour candidates based on aspect ratio, width, and position."""
         best_rect = None
-        best_score = 0.0
+        best_score = -1.0
 
         for cnt in contours:
-            area = cv2.contourArea(cnt)
-            if area < self.min_area:
-                continue
-
             x, y, w, h = cv2.boundingRect(cnt)
-            if h == 0:
+            if h < 18 or w < 50 or h > roi_h * 0.90:
                 continue
 
             aspect = float(w) / float(h)
-            if self.min_aspect_ratio <= aspect <= self.max_aspect_ratio:
-                # Prefer central candidates with typical plate aspect ~ 3.0 - 4.5
-                ideal_aspect = 3.5
-                aspect_score = 1.0 - abs(aspect - ideal_aspect) / ideal_aspect
-                score = area * max(0.1, aspect_score)
+            if not (self.min_aspect_ratio <= aspect <= self.max_aspect_ratio):
+                continue
 
-                if score > best_score:
-                    best_score = score
-                    # Add 5% padding around candidate
-                    pad_x = int(w * 0.05)
-                    pad_y = int(h * 0.05)
-                    px = max(0, x - pad_x)
-                    py = max(0, y - pad_y)
-                    pw = min(roi.shape[1] - px, w + 2 * pad_x)
-                    ph = min(roi.shape[0] - py, h + 2 * pad_y)
-                    best_rect = (px, py, pw, ph)
+            # Plate width relative to vehicle
+            rel_w = float(w) / float(vehicle_w) if vehicle_w > 0 else 0.3
+            if rel_w > 0.70 or rel_w < 0.10:
+                continue
+
+            # Rectangularity score
+            cnt_area = cv2.contourArea(cnt)
+            bbox_area = float(w * h)
+            rect_ratio = cnt_area / bbox_area if bbox_area > 0 else 0.0
+
+            # Closeness to ideal Indian plate aspect ratio (~4.0)
+            aspect_score = 1.0 - min(1.0, abs(aspect - 4.0) / 4.0)
+
+            # Central horizontal position score
+            center_x = x + w / 2.0
+            pos_score = 1.0 - abs(center_x - roi_w / 2.0) / (roi_w / 2.0)
+
+            score = (0.4 * aspect_score) + (0.3 * pos_score) + (0.3 * min(1.0, rect_ratio + 0.3))
+
+            if score > best_score:
+                best_score = score
+                pad_x = max(2, int(w * 0.03))
+                pad_y = max(2, int(h * 0.03))
+                px = max(0, x - pad_x)
+                py = max(0, y - pad_y)
+                pw = min(roi_w - px, w + 2 * pad_x)
+                ph = min(roi_h - py, h + 2 * pad_y)
+                best_rect = (px, py, pw, ph)
 
         return best_rect

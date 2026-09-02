@@ -30,25 +30,23 @@ def prepare_anpr_video():
 
     print(f"Creating ANPR test video {DST_VIDEO} ({width}x{height} @ {fps}fps, {total_frames} frames)...")
 
-    # Plate dimensions: 140x35 px (aspect ratio 4.0, typical of Indian HSRP plates)
-    plate_w = 140
-    plate_h = 35
-    plate_x = 245
-    plate_y = 205
+    # Plate dimensions: 240x60 px (aspect ratio 4.0, typical of Indian HSRP plates)
+    plate_w = 240
+    plate_h = 60
+    plate_x = 200
+    plate_y = 195
 
     # Render high-resolution master plate
     master_plate = np.full((plate_h, plate_w, 3), 255, dtype=np.uint8)
     # Dark border
-    cv2.rectangle(master_plate, (0, 0), (plate_w - 1, plate_h - 1), (10, 10, 10), 2)
-    # Blue IND strip on left
-    cv2.rectangle(master_plate, (2, 2), (14, plate_h - 3), (180, 70, 20), -1)
+    cv2.rectangle(master_plate, (0, 0), (plate_w - 1, plate_h - 1), (15, 15, 15), 3)
     # Crisp black text: GJ01AB1234
     cv2.putText(
         master_plate,
         "GJ01AB1234",
-        (20, 26),
-        cv2.FONT_HERSHEY_SIMPLEX,
-        0.75,
+        (18, 43),
+        cv2.FONT_HERSHEY_DUPLEX,
+        1.0,
         (0, 0, 0),
         2,
         cv2.LINE_AA,

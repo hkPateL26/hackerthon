@@ -71,7 +71,9 @@ class CameraAiSession:
         self.track_manager = TrackManager(
             camera_id=camera_id,
             session_id=self.session_id,
-            match_thresh=0.35,
+            high_thresh=min(0.35, confidence_threshold),
+            low_thresh=0.15,
+            match_thresh=0.30,
         )
         self.anpr_manager = AnprManager(
             camera_id=camera_id,
@@ -142,8 +144,7 @@ class CameraAiSession:
                     # 4b. Automatic Number Plate Recognition (ANPR) for VEHICLE category
                     if det.category == "VEHICLE":
                         try:
-                            await asyncio.to_thread(
-                                self.anpr_manager.process_vehicle,
+                            await self.anpr_manager.process_vehicle_async(
                                 frame,
                                 det.bbox,
                                 det.confidence,

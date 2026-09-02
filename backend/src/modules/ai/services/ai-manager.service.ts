@@ -94,7 +94,8 @@ export class AiManagerService implements OnApplicationShutdown {
     const forceFile =
       this.configService.get<string>('FORCE_FILE_VIDEO_SOURCE', 'true') === 'true';
     const sourceUrl =
-      !forceFile && camera.rtspUrl ? camera.rtspUrl : this.sampleVideoPath;
+      dto.sourceUrl ||
+      (!forceFile && camera.rtspUrl ? camera.rtspUrl : this.sampleVideoPath);
 
     // 4. Call Python AI Engine
     try {
