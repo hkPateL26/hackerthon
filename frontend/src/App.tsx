@@ -8,6 +8,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { MapPage } from './pages/MapPage';
 import { CamerasPage } from './pages/CamerasPage';
 import { StreamPlayerPage } from './pages/StreamPlayerPage';
+import { MonitoringPage } from './pages/MonitoringPage';
 import { AlertsPage } from './pages/AlertsPage';
 import { IncidentsPage } from './pages/IncidentsPage';
 
@@ -33,6 +34,7 @@ function App() {
         }
       >
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/monitoring" element={<MonitoringPage />} />
         <Route path="/map" element={<MapPage />} />
         <Route path="/cameras" element={<CamerasPage />} />
         <Route path="/cameras/:id/stream" element={<StreamPlayerPage />} />

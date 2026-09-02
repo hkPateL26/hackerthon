@@ -1,0 +1,64 @@
+.summaryRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: rgba(17, 24, 39, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.chipValue {
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.chipRunning {
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #10b981;
+}
+
+.chipRunning .chipValue {
+  color: #34d399;
+}
+
+.chipStopped {
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+.chipError {
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+.chipError .chipValue {
+  color: #f87171;
+}
+
+.concurrencyMeter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(59, 130, 246, 0.05));
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  border-radius: 6px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  color: #00d4ff;
+  font-weight: 600;
+}
+
+.meterFull {
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.1);
+}

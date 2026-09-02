@@ -68,19 +68,18 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         manifestLoadingRetryDelay: 1000,
       });
 
+      video.muted = true;
       hlsRef.current = hls;
       hls.loadSource(src);
       hls.attachMedia(video);
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         setIsLoading(false);
+        setError(null);
         if (autoPlay) {
-          video.play().catch(() => {
-            // Autoplay with sound might be blocked, ensure muted
-            video.muted = true;
-            setIsMuted(true);
-            video.play().catch(() => {});
-          });
+          video.muted = true;
+          setIsMuted(true);
+          video.play().catch(() => {});
         }
       });
 
@@ -88,11 +87,10 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         if (data.fatal) {
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
-              setError('Network error: Unable to reach video stream segment.');
+              // Transient 404 while FFmpeg generates first live segment — retry loading
               hls.startLoad();
               break;
             case Hls.ErrorTypes.MEDIA_ERROR:
-              setError('Media error: Stream decode error. Attempting recovery...');
               hls.recoverMediaError();
               break;
             default:

@@ -203,15 +203,15 @@ cd ai-engine
 
 ## 🗺️ 9. Project Roadmap & Current Phase
 
-### ✅ Current Phase: Phase 1 — Foundation & Project Scaffold
-- Environment setup, Git initialization, project scaffolding for Backend, Frontend, AI Engine, Database, and Docker.
+### ✅ Completed Phases:
+- **Phase 1:** Foundation, PostgreSQL 18, PostGIS, FFmpeg, NestJS, React, FastAPI scaffold.
+- **Phase 2:** Authentication & RBAC (JWT, HttpOnly refresh cookies, SHA-256 tokens, rate limiting).
+- **Phase 3:** Centralized CCTV Camera Registry (CRUD, GeoJSON, pagination, soft-delete, district/station).
+- **Phase 4:** GIS Camera Mapping (Leaflet interactive map, clustering, bounding box spatial filtering).
+- **Phase 5:** Video Ingestion & HLS Stream Management (FFmpeg pipeline, HLS delivery, VideoPlayer).
+- **Phase 6:** Unified Camera Monitoring Dashboard (Multi-camera grid 1x1/2x2/2x3/3x3, 4-stream live playback, concurrency cap enforcement, camera picker, duplicate prevention, quick details, unmount cleanup).
 
 ### ⏳ Intentionally Deferred to Later Phases:
-- **Phase 2:** Authentication & RBAC JWT flow
-- **Phase 3:** CCTV Camera Registry CRUD & Management
-- **Phase 4:** GIS Camera Mapping (Leaflet & OpenStreetMap)
-- **Phase 5:** Video Ingestion & Stream Management
-- **Phase 6:** Multi-Camera Monitoring Dashboard
 - **Phase 7:** AI Person & Vehicle Detection (YOLOv8)
 - **Phase 8:** Multi-Object Tracking (ByteTrack)
 - **Phase 9:** Automatic Number Plate Recognition (ANPR)

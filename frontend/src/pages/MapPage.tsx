@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { cameraService } from '../services/camera.service';
 import type { District, PoliceStation } from '../types/camera';
 import type {
@@ -20,7 +21,13 @@ const initialFilters: GISFilterState = {
 };
 
 export const MapPage: React.FC = () => {
-  const [filters, setFilters] = useState<GISFilterState>(initialFilters);
+  const [searchParams] = useSearchParams();
+  const urlSearch = searchParams.get('search') || '';
+
+  const [filters, setFilters] = useState<GISFilterState>(() => ({
+    ...initialFilters,
+    search: urlSearch,
+  }));
   const [geoData, setGeoData] = useState<CameraGeoJSONFeatureCollection>({
     type: 'FeatureCollection',
     features: [],

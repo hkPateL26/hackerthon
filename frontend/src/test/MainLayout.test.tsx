@@ -24,6 +24,7 @@ describe('MainLayout', () => {
   it('should render all navigation items', () => {
     renderWithRouter(<MainLayout />)
     expect(screen.getByText('Dashboard')).toBeInTheDocument()
+    expect(screen.getByText('CCTV Monitoring')).toBeInTheDocument()
     expect(screen.getByText('Map / GIS')).toBeInTheDocument()
     expect(screen.getByText('Cameras')).toBeInTheDocument()
     expect(screen.getByText('Alerts')).toBeInTheDocument()
@@ -43,7 +44,7 @@ describe('MainLayout', () => {
 
   it('should render phase indicator', () => {
     renderWithRouter(<MainLayout />)
-    expect(screen.getByText('Phase 5 — Video Ingestion')).toBeInTheDocument()
+    expect(screen.getByText('Phase 6 — Unified Monitoring')).toBeInTheDocument()
   })
 
   it('should render sign out button', () => {

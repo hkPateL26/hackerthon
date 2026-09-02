@@ -1,0 +1,140 @@
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background-color: #0f172a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.85rem 1.25rem;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.titleArea {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.icon {
+  font-size: 1.5rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #f8fafc;
+  letter-spacing: -0.01em;
+}
+
+.controlsArea {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.actionBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.startAllBtn {
+  background-color: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+
+.startAllBtn:hover:not(:disabled) {
+  background-color: rgba(16, 185, 129, 0.25);
+  border-color: #10b981;
+}
+
+.stopAllBtn {
+  background-color: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #f87171;
+}
+
+.stopAllBtn:hover:not(:disabled) {
+  background-color: rgba(239, 68, 68, 0.22);
+  border-color: #ef4444;
+}
+
+.clearAllBtn {
+  background-color: rgba(148, 163, 184, 0.1);
+  border-color: rgba(148, 163, 184, 0.25);
+  color: #cbd5e1;
+}
+
+.clearAllBtn:hover:not(:disabled) {
+  background-color: rgba(148, 163, 184, 0.2);
+  color: #fff;
+}
+
+.addCameraBtn {
+  background-color: #0284c7;
+  border-color: #0369a1;
+  color: #ffffff;
+}
+
+.addCameraBtn:hover:not(:disabled) {
+  background-color: #0369a1;
+}
+
+.bottomRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.warningBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background-color: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 6px;
+  padding: 0.4rem 0.85rem;
+  color: #fbbf24;
+  font-size: 0.825rem;
+  width: 100%;
+}
+
+.warningText {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dismissWarningBtn {
+  background: transparent;
+  border: none;
+  color: #fbbf24;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  line-height: 1;
+}
