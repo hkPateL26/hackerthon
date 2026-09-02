@@ -124,8 +124,18 @@ $RECYCLE.BIN/
 # frontend/src/**/__snapshots__/   # uncomment if you want to ignore snapshots
 
 # ------------------------------------------------------------------
-# Sample video files — large, tracked separately
+# Video Runtime, HLS output & Sample media
 # ------------------------------------------------------------------
+runtime/
+runtime/**/*.m3u8
+runtime/**/*.ts
+*.m3u8
+*.mp4
+*.mov
+*.avi
+*.mkv
 sample-data/videos/*.mp4
 sample-data/videos/*.avi
 sample-data/videos/*.mkv
+!sample-data/videos/.gitkeep
+

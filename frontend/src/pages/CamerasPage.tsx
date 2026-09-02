@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { cameraService } from '../services/camera.service';
 import type {
@@ -12,6 +13,7 @@ import type {
 import styles from './CamerasPage.module.css';
 
 export function CamerasPage() {
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const isAdmin = user?.role === 'ADMIN';
   const isSupervisorOrAdmin = user?.role === 'ADMIN' || user?.role === 'SUPERVISOR';
@@ -559,6 +561,15 @@ export function CamerasPage() {
                         <button
                           type="button"
                           className={styles.actionBtn}
+                          style={{ color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.4)' }}
+                          onClick={() => navigate(`/cameras/${camera.id}/stream`)}
+                          title="Live Stream Feed"
+                        >
+                          ▶ Live
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.actionBtn}
                           onClick={() => setSelectedCameraDetails(camera)}
                           title="View Technical Details"
                         >
@@ -1072,6 +1083,18 @@ export function CamerasPage() {
               <button
                 type="button"
                 className={styles.btnPrimary}
+                style={{ background: '#10b981' }}
+                onClick={() => {
+                  const camId = selectedCameraDetails.id;
+                  setSelectedCameraDetails(null);
+                  navigate(`/cameras/${camId}/stream`);
+                }}
+              >
+                ▶ Open Live Stream
+              </button>
+              <button
+                type="button"
+                className={styles.btnSecondary}
                 onClick={() => setSelectedCameraDetails(null)}
               >
                 Close

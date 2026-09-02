@@ -6,6 +6,7 @@ import { AppService } from './app.service.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { CamerasModule } from './modules/cameras/cameras.module.js';
+import { StreamsModule } from './modules/streams/streams.module.js';
 import { DatabaseConfig } from './config/database.config.js';
 
 @Module({
@@ -32,6 +33,9 @@ import { DatabaseConfig } from './config/database.config.js';
 
     // Centralized Camera Registry module
     CamerasModule,
+
+    // Video Ingestion & Stream Integration module
+    StreamsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

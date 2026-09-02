@@ -114,9 +114,18 @@ export const CameraDetailDrawer: React.FC<CameraDetailDrawerProps> = ({ camera, 
         <button
           type="button"
           className={styles.registryBtn}
+          style={{ background: '#10b981' }}
+          onClick={() => navigate(`/cameras/${camera.id}/stream`)}
+          id="drawer-live-stream-btn"
+        >
+          <span>▶</span> Live Stream
+        </button>
+        <button
+          type="button"
+          className={styles.registryBtn}
           onClick={handleOpenRegistry}
         >
-          <span>📷</span> Open in Camera Registry
+          <span>📷</span> Registry
         </button>
         <button
           type="button"

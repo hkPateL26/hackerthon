@@ -58,7 +58,7 @@ export function MainLayout() {
         </nav>
 
         <div className={styles.sidebarFooter}>
-          <div className={styles.phase}>Phase 4 — GIS Mapping</div>
+          <div className={styles.phase}>Phase 5 — Video Ingestion</div>
         </div>
       </aside>
 

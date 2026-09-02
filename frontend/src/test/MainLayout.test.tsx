@@ -43,7 +43,7 @@ describe('MainLayout', () => {
 
   it('should render phase indicator', () => {
     renderWithRouter(<MainLayout />)
-    expect(screen.getByText('Phase 4 — GIS Mapping')).toBeInTheDocument()
+    expect(screen.getByText('Phase 5 — Video Ingestion')).toBeInTheDocument()
   })
 
   it('should render sign out button', () => {
