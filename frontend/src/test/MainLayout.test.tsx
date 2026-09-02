@@ -42,7 +42,12 @@ describe('MainLayout', () => {
 
   it('should render phase indicator', () => {
     renderWithRouter(<MainLayout />)
-    expect(screen.getByText('Phase 1 — Foundation')).toBeInTheDocument()
+    expect(screen.getByText('Phase 2 — Auth & RBAC')).toBeInTheDocument()
+  })
+
+  it('should render sign out button', () => {
+    renderWithRouter(<MainLayout />)
+    expect(screen.getByRole('button', { name: /sign out/i })).toBeInTheDocument()
   })
 
   it('should render navigation links with correct hrefs', () => {

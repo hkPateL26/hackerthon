@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { HealthModule } from './modules/health/health.module.js';
+import { AuthModule } from './modules/auth/auth.module.js';
 import { DatabaseConfig } from './config/database.config.js';
 
 @Module({
@@ -24,6 +25,9 @@ import { DatabaseConfig } from './config/database.config.js';
 
     // Health check module
     HealthModule,
+
+    // Authentication & RBAC module
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

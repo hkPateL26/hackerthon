@@ -130,6 +130,12 @@
 .headerRight {
   display: flex;
   align-items: center;
+  gap: 16px;
+}
+
+.systemStatus {
+  display: flex;
+  align-items: center;
   gap: 8px;
 }
 
@@ -149,6 +155,81 @@
 .statusText {
   font-size: 13px;
   color: #64748b;
+}
+
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px;
+  background: #0f1117;
+  border: 1px solid #2d3148;
+  border-radius: 8px;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+
+.userName {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.userEmail {
+  font-size: 10px;
+  color: #64748b;
+}
+
+.roleBadge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.roleAdmin {
+  background: rgba(168, 85, 247, 0.2);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+.roleSupervisor {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.roleOperator {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.logoutBtn {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.logoutBtn:hover {
+  background: rgba(239, 68, 68, 0.25);
+  color: #f87171;
+  border-color: #f87171;
 }
 
 .content {

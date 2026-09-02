@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module.js';
 
 async function bootstrap() {
@@ -12,6 +13,9 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get<number>('APP_PORT', 3000);
   const corsOrigin = configService.get<string>('CORS_ORIGIN', 'http://localhost:5173');
+
+  // Cookie parser for HttpOnly refresh tokens
+  app.use(cookieParser());
 
   // Global validation pipe
   app.useGlobalPipes(

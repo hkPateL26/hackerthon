@@ -49,7 +49,7 @@ INSERT INTO users (
     'b1c2d3e4-0001-0001-0001-000000000001',
     'admin@police.gujarat.gov.in',
     'System Administrator',
-    '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewYpfQcRRGxK8u4K',
+    '$2b$12$NLImeh3itGb6zwfTH0mVmuxCYUebL8uW1SkXiQUJhBEgFuyq4BA8i',
     'a1b2c3d4-0001-0001-0001-000000000001',
     TRUE
 ) ON CONFLICT (email) DO NOTHING;
@@ -67,7 +67,7 @@ INSERT INTO users (
     'b1c2d3e4-0002-0002-0002-000000000002',
     'supervisor@police.gujarat.gov.in',
     'Demo Supervisor',
-    '$2b$12$8GvFOJkn5ztUPa7gQN.2oO/lXQZVr4UvJkRX7hzCKq7XdT8ePxNqO',
+    '$2b$12$.3xEJf37gxOdnHyhT/zNXuvoDVNyNeGN.w96xfbEYxiG5RKFoSI8u',
     'a1b2c3d4-0002-0002-0002-000000000002',
     TRUE
 ) ON CONFLICT (email) DO NOTHING;
@@ -85,7 +85,7 @@ INSERT INTO users (
     'b1c2d3e4-0003-0003-0003-000000000003',
     'operator@police.gujarat.gov.in',
     'Demo Operator',
-    '$2b$12$9HwGPKln6auVQb8hRO.3pP/mYRaWs5VwKSY8iazDLr8YeU9fQyOrP',
+    '$2b$12$BbbfpYbWA8ILrfroL6tXR.1FaPiG.P6qwxpqdwzTUofp6QN.Fnl2q',
     'a1b2c3d4-0003-0003-0003-000000000003',
     TRUE
 ) ON CONFLICT (email) DO NOTHING;
