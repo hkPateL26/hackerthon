@@ -1,0 +1,131 @@
+# =============================================================
+# Gujarat Police CCTV Integration — .gitignore
+# =============================================================
+
+# ------------------------------------------------------------------
+# Node / npm
+# ------------------------------------------------------------------
+node_modules/
+dist/
+build/
+.npm/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+*.tsbuildinfo
+.next/
+.nuxt/
+.vuepress/dist/
+
+# ------------------------------------------------------------------
+# Python
+# ------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+.venv/
+venv/
+ENV/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.pyc
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# ------------------------------------------------------------------
+# Environment & Secrets — NEVER COMMIT
+# ------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# ------------------------------------------------------------------
+# AI Models — Large files, download separately
+# ------------------------------------------------------------------
+ai-engine/models/*.pt
+ai-engine/models/*.onnx
+ai-engine/models/*.engine
+ai-engine/models/*.trt
+
+# ------------------------------------------------------------------
+# Logs
+# ------------------------------------------------------------------
+*.log
+logs/
+*.log.*
+
+# ------------------------------------------------------------------
+# Generated / Build Artifacts
+# ------------------------------------------------------------------
+coverage/
+uploads/
+tmp/
+temp/
+.cache/
+
+# ------------------------------------------------------------------
+# Docker runtime data (not config files)
+# ------------------------------------------------------------------
+docker-data/
+postgres-data/
+
+# ------------------------------------------------------------------
+# OS
+# ------------------------------------------------------------------
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# ------------------------------------------------------------------
+# IDE
+# ------------------------------------------------------------------
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.project
+.classpath
+.settings/
+
+# ------------------------------------------------------------------
+# Testing snapshots (keep config, ignore generated)
+# ------------------------------------------------------------------
+# frontend/src/**/__snapshots__/   # uncomment if you want to ignore snapshots
+
+# ------------------------------------------------------------------
+# Sample video files — large, tracked separately
+# ------------------------------------------------------------------
+sample-data/videos/*.mp4
+sample-data/videos/*.avi
+sample-data/videos/*.mkv

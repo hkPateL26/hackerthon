@@ -1,0 +1,147 @@
+version: "3.9"
+
+# ================================================================
+# Gujarat Police CCTV Integration & AI Video Analytics
+# Docker Compose — Full Stack Production-like Setup
+# ================================================================
+#
+# D: DRIVE NOTE:
+# All persistent data uses D: drive bind mounts.
+#
+# Services:
+#   - postgres     PostgreSQL 16 + PostGIS 3.4
+#   - backend      NestJS API (Phase 19: full containerization)
+#   - frontend     React (served via nginx)
+#   - ai-engine    FastAPI Python AI service
+#   - nginx        Reverse proxy
+#
+# NOTE: backend, frontend, and ai-engine containers are
+# prepared here for Phase 19. In Phase 1, only postgres
+# is required to run.
+#
+# Usage (Phase 1 — database only):
+#   docker compose up -d postgres
+#
+# Usage (Phase 19 — full stack):
+#   docker compose up -d
+
+services:
+  # ----------------------------------------------------------------
+  # PostgreSQL 16 + PostGIS 3.4
+  # ----------------------------------------------------------------
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: cctv_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME:-cctv_hackathon}
+      POSTGRES_USER: ${DATABASE_USER:-postgres}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${DATABASE_PORT:-5432}:5432"
+    volumes:
+      - type: bind
+        source: D:/Movies and Web se/hackerthon/docker-data/postgres
+        target: /var/lib/postgresql/data
+      - type: bind
+        source: D:/Movies and Web se/hackerthon/database/migrations
+        target: /docker-entrypoint-initdb.d/migrations
+        read_only: true
+      - type: bind
+        source: D:/Movies and Web se/hackerthon/database/seeds
+        target: /docker-entrypoint-initdb.d/seeds
+        read_only: true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-postgres} -d ${DATABASE_NAME:-cctv_hackathon}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - cctv_network
+
+  # ----------------------------------------------------------------
+  # NestJS Backend API (Phase 19)
+  # ----------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../docker/Dockerfile.backend
+    container_name: cctv_backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      APP_PORT: 3000
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${DATABASE_NAME:-cctv_hackathon}
+      DATABASE_USER: ${DATABASE_USER:-postgres}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      AI_ENGINE_URL: http://ai-engine:8000
+      AI_ENGINE_API_KEY: ${AI_ENGINE_API_KEY}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - cctv_network
+    profiles:
+      - full-stack   # Only started with: docker compose --profile full-stack up
+
+  # ----------------------------------------------------------------
+  # React Frontend (Phase 19)
+  # ----------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/Dockerfile.frontend
+    container_name: cctv_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - cctv_network
+    profiles:
+      - full-stack
+
+  # ----------------------------------------------------------------
+  # AI Engine — FastAPI (Phase 19)
+  # ----------------------------------------------------------------
+  ai-engine:
+    build:
+      context: ./ai-engine
+      dockerfile: ../docker/Dockerfile.ai
+    container_name: cctv_ai_engine
+    restart: unless-stopped
+    environment:
+      BACKEND_URL: http://backend:3000
+      AI_ENGINE_API_KEY: ${AI_ENGINE_API_KEY}
+      AI_ENGINE_PORT: 8000
+    ports:
+      - "${AI_ENGINE_PORT:-8000}:8000"
+    volumes:
+      - type: bind
+        source: D:/Movies and Web se/hackerthon/ai-engine/models
+        target: /app/models
+      - type: bind
+        source: D:/Movies and Web se/hackerthon/sample-data/videos
+        target: /app/sample-data/videos
+        read_only: true
+    depends_on:
+      - backend
+    networks:
+      - cctv_network
+    profiles:
+      - full-stack
+
+networks:
+  cctv_network:
+    name: cctv_hackathon_net
+    driver: bridge

@@ -1,0 +1,65 @@
+version: "3.9"
+
+# ================================================================
+# Gujarat Police CCTV Integration & AI Video Analytics
+# Docker Compose — Development Environment
+# ================================================================
+#
+# D: DRIVE NOTE:
+# This compose file is configured to use D: drive for all
+# persistent volume data.
+#
+# Services started:
+#   - postgres    (PostgreSQL 16 + PostGIS 3.4)
+#
+# pgAdmin is NOT included here because pgAdmin 4 is already
+# installed on the host machine at D:\pgAdmin 4 and can be
+# used directly to connect to the postgres service on port 5432.
+#
+# Usage:
+#   docker compose up -d
+#   docker compose down
+#   docker compose logs -f postgres
+
+services:
+  # ----------------------------------------------------------------
+  # PostgreSQL 16 with PostGIS 3.4
+  # ----------------------------------------------------------------
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: cctv_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cctv_hackathon
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-hackathon_dev_password}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      # PostgreSQL data stored on D: drive
+      - type: bind
+        source: D:/Movies and Web se/hackerthon/docker-data/postgres
+        target: /var/lib/postgresql/data
+      # Auto-run migrations on first start
+      - type: bind
+        source: D:/Movies and Web se/hackerthon/database/migrations
+        target: /docker-entrypoint-initdb.d/migrations
+        read_only: true
+      - type: bind
+        source: D:/Movies and Web se/hackerthon/database/seeds
+        target: /docker-entrypoint-initdb.d/seeds
+        read_only: true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cctv_hackathon"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - cctv_network
+
+networks:
+  cctv_network:
+    name: cctv_hackathon_net
+    driver: bridge
