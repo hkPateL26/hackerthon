@@ -67,7 +67,7 @@ class TrackManager:
         return [
             trk.to_dict()
             for trk in self.tracker.tracks.values()
-            if trk.status in (TrackStatus.NEW, TrackStatus.ACTIVE, TrackStatus.LOST)
+            if trk.status in (TrackStatus.NEW, TrackStatus.ACTIVE, TrackStatus.LOST, TrackStatus.TERMINATED)
         ]
 
     def get_track_for_detection(self, det: Detection) -> Optional[int]:
