@@ -28,7 +28,7 @@ export const cameraService = {
     if (params.sortBy) cleanParams.sortBy = params.sortBy;
     if (params.sortOrder) cleanParams.sortOrder = params.sortOrder;
 
-    const response = await apiClient.get<PaginatedCameras>('/api/cameras', {
+    const response = await apiClient.get<PaginatedCameras>('/cameras', {
       params: cleanParams,
     });
     return response.data;
@@ -38,7 +38,7 @@ export const cameraService = {
    * Get camera details by ID
    */
   async getCameraById(id: string): Promise<Camera> {
-    const response = await apiClient.get<Camera>(`/api/cameras/${id}`);
+    const response = await apiClient.get<Camera>(`/cameras/${id}`);
     return response.data;
   },
 
@@ -46,7 +46,7 @@ export const cameraService = {
    * Create new camera (ADMIN only)
    */
   async createCamera(data: CreateCameraInput): Promise<Camera> {
-    const response = await apiClient.post<Camera>('/api/cameras', data);
+    const response = await apiClient.post<Camera>('/cameras', data);
     return response.data;
   },
 
@@ -54,7 +54,7 @@ export const cameraService = {
    * Update camera details (ADMIN only)
    */
   async updateCamera(id: string, data: UpdateCameraInput): Promise<Camera> {
-    const response = await apiClient.patch<Camera>(`/api/cameras/${id}`, data);
+    const response = await apiClient.patch<Camera>(`/cameras/${id}`, data);
     return response.data;
   },
 
@@ -63,7 +63,7 @@ export const cameraService = {
    */
   async deleteCamera(id: string): Promise<{ message: string; id: string }> {
     const response = await apiClient.delete<{ message: string; id: string }>(
-      `/api/cameras/${id}`,
+      `/cameras/${id}`,
     );
     return response.data;
   },
@@ -72,7 +72,7 @@ export const cameraService = {
    * Update camera status (ADMIN / SUPERVISOR)
    */
   async updateStatus(id: string, status: CameraStatus): Promise<Camera> {
-    const response = await apiClient.patch<Camera>(`/api/cameras/${id}/status`, {
+    const response = await apiClient.patch<Camera>(`/cameras/${id}/status`, {
       status,
     });
     return response.data;
@@ -82,7 +82,7 @@ export const cameraService = {
    * Activate camera (ADMIN only)
    */
   async activateCamera(id: string): Promise<Camera> {
-    const response = await apiClient.patch<Camera>(`/api/cameras/${id}/activate`);
+    const response = await apiClient.patch<Camera>(`/cameras/${id}/activate`);
     return response.data;
   },
 
@@ -90,7 +90,7 @@ export const cameraService = {
    * Deactivate camera (ADMIN only)
    */
   async deactivateCamera(id: string): Promise<Camera> {
-    const response = await apiClient.patch<Camera>(`/api/cameras/${id}/deactivate`);
+    const response = await apiClient.patch<Camera>(`/cameras/${id}/deactivate`);
     return response.data;
   },
 
@@ -98,7 +98,7 @@ export const cameraService = {
    * Get all districts
    */
   async getDistricts(): Promise<District[]> {
-    const response = await apiClient.get<District[]>('/api/cameras/districts');
+    const response = await apiClient.get<District[]>('/cameras/districts');
     return response.data;
   },
 
@@ -107,7 +107,7 @@ export const cameraService = {
    */
   async getPoliceStations(districtId?: string): Promise<PoliceStation[]> {
     const response = await apiClient.get<PoliceStation[]>(
-      '/api/cameras/police-stations',
+      '/cameras/police-stations',
       {
         params: districtId ? { districtId } : undefined,
       },
@@ -131,7 +131,7 @@ export const cameraService = {
     if (params.bbox) cleanParams.bbox = params.bbox;
 
     const response = await apiClient.get<CameraGeoJSONFeatureCollection>(
-      '/api/cameras/geojson',
+      '/cameras/geojson',
       { params: cleanParams },
     );
     return response.data;
