@@ -5,3 +5,10 @@
   background-color: #020617;
   color: #f8fafc;
 }
+
+.contentArea {
+  display: flex;
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}

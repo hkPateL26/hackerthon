@@ -69,6 +69,10 @@ ai-engine/models/*.pt
 ai-engine/models/*.onnx
 ai-engine/models/*.engine
 ai-engine/models/*.trt
+ai-engine/models/*.whl
+*.whl
+.ultralytics/
+ai-engine/.ultralytics/
 
 # ------------------------------------------------------------------
 # Logs

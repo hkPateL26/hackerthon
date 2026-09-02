@@ -7,6 +7,8 @@ import { HealthModule } from './modules/health/health.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { CamerasModule } from './modules/cameras/cameras.module.js';
 import { StreamsModule } from './modules/streams/streams.module.js';
+import { EventsModule } from './modules/events/events.module.js';
+import { AiModule } from './modules/ai/ai.module.js';
 import { DatabaseConfig } from './config/database.config.js';
 
 @Module({
@@ -36,6 +38,12 @@ import { DatabaseConfig } from './config/database.config.js';
 
     // Video Ingestion & Stream Integration module
     StreamsModule,
+
+    // AI Detection Events module
+    EventsModule,
+
+    // AI Video Analytics Manager module
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService],

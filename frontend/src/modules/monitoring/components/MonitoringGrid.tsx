@@ -14,6 +14,7 @@ interface MonitoringGridProps {
   onRetryStream: (slotId: string) => void;
   onRemoveCamera: (slotId: string) => void;
   onViewDetails: (camera: Camera) => void;
+  onCapacityError?: (message: string) => void;
 }
 
 export const MonitoringGrid: React.FC<MonitoringGridProps> = ({
@@ -26,6 +27,7 @@ export const MonitoringGrid: React.FC<MonitoringGridProps> = ({
   onRetryStream,
   onRemoveCamera,
   onViewDetails,
+  onCapacityError,
 }) => {
   const getLayoutClass = () => {
     switch (layout) {
@@ -59,6 +61,7 @@ export const MonitoringGrid: React.FC<MonitoringGridProps> = ({
           onRetryStream={onRetryStream}
           onRemoveCamera={onRemoveCamera}
           onViewDetails={onViewDetails}
+          onCapacityError={onCapacityError}
         />
       ))}
     </main>

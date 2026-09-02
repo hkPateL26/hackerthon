@@ -15,6 +15,8 @@ interface MonitoringToolbarProps {
   onAddCamera: () => void;
   onDismissWarning: () => void;
   hasEmptySlots: boolean;
+  onToggleDetectionsFeed?: () => void;
+  isDetectionsFeedOpen?: boolean;
 }
 
 export const MonitoringToolbar: React.FC<MonitoringToolbarProps> = ({
@@ -28,6 +30,8 @@ export const MonitoringToolbar: React.FC<MonitoringToolbarProps> = ({
   onAddCamera,
   onDismissWarning,
   hasEmptySlots,
+  onToggleDetectionsFeed,
+  isDetectionsFeedOpen = false,
 }) => {
   return (
     <header className={styles.toolbar} aria-label="Monitoring Dashboard Controls">
@@ -45,6 +49,20 @@ export const MonitoringToolbar: React.FC<MonitoringToolbarProps> = ({
             currentLayout={currentLayout}
             onSelectLayout={onSelectLayout}
           />
+
+          {onToggleDetectionsFeed && (
+            <button
+              type="button"
+              className={`${styles.actionBtn} ${
+                isDetectionsFeedOpen ? styles.clearAllBtn : styles.addCameraBtn
+              }`}
+              onClick={onToggleDetectionsFeed}
+              title="Toggle Live Person & Vehicle Detections Feed"
+              id="toolbar-detection-feed-btn"
+            >
+              <span>🚨</span> {isDetectionsFeedOpen ? 'Hide Feed' : 'Live Feed'}
+            </button>
+          )}
 
           <button
             type="button"

@@ -174,7 +174,7 @@ describe('Phase 6 — MonitoringPage & Multi-Camera Grid', () => {
       stoppedAt: null,
       lastError: null,
     });
-    global.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
     } as any);

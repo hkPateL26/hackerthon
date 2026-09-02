@@ -4,6 +4,8 @@ import type { MonitoringSlot } from '../types/monitoring';
 import type { Camera } from '../../../types/camera';
 import { VideoPlayer } from '../../../components/video/VideoPlayer';
 import { useAuthStore } from '../../../store/authStore';
+import { AIControlBadge } from '../../analytics/components/AIControlBadge';
+import { useAISession } from '../../analytics/hooks/useAISession';
 import styles from './CameraTile.module.css';
 
 interface CameraTileProps {
@@ -15,6 +17,7 @@ interface CameraTileProps {
   onRetryStream: (slotId: string) => void;
   onRemoveCamera: (slotId: string) => void;
   onViewDetails: (camera: Camera) => void;
+  onCapacityError?: (message: string) => void;
 }
 
 export const CameraTile: React.FC<CameraTileProps> = ({
@@ -26,18 +29,30 @@ export const CameraTile: React.FC<CameraTileProps> = ({
   onRetryStream,
   onRemoveCamera,
   onViewDetails,
+  onCapacityError,
 }) => {
   const tileRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const role = user?.role;
 
-  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
-
   const canOperate = role === 'ADMIN' || role === 'SUPERVISOR' || role === 'OPERATOR';
   const canRestart = role === 'ADMIN' || role === 'SUPERVISOR';
 
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+
   const { camera, streamStatus, playbackUrl, isLoading, error } = slot;
+
+  const {
+    status: aiStatus,
+    isLoading: isAiLoading,
+    detectionsCount: aiDetections,
+    startAI,
+    stopAI,
+  } = useAISession({
+    cameraId: camera?.id || null,
+    onCapacityError,
+  });
 
   // Toggle browser Fullscreen API on this tile
   const toggleFullscreen = () => {
@@ -134,6 +149,14 @@ export const CameraTile: React.FC<CameraTileProps> = ({
         <div className={styles.headerRight}>
           {getRegistryBadge()}
           {getStreamBadge()}
+          <AIControlBadge
+            status={aiStatus}
+            isLoading={isAiLoading}
+            detectionsCount={aiDetections}
+            onStart={startAI}
+            onStop={stopAI}
+            disabled={!canOperate}
+          />
         </div>
       </div>
 
