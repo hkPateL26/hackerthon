@@ -5,6 +5,7 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
+import { CamerasModule } from './modules/cameras/cameras.module.js';
 import { DatabaseConfig } from './config/database.config.js';
 
 @Module({
@@ -28,6 +29,9 @@ import { DatabaseConfig } from './config/database.config.js';
 
     // Authentication & RBAC module
     AuthModule,
+
+    // Centralized Camera Registry module
+    CamerasModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,0 +1,7 @@
+export enum CameraStatus {
+  ONLINE = 'ONLINE',
+  OFFLINE = 'OFFLINE',
+  UNKNOWN = 'UNKNOWN',
+  MAINTENANCE = 'MAINTENANCE',
+  DISABLED = 'DISABLED',
+}
