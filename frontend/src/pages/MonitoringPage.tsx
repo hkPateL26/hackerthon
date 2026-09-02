@@ -5,6 +5,12 @@ import { MonitoringGrid } from '../modules/monitoring/components/MonitoringGrid'
 import { CameraPicker } from '../modules/monitoring/components/CameraPicker';
 import { QuickDetailsModal } from '../modules/monitoring/components/QuickDetailsModal';
 import { RecentDetectionsDrawer } from '../modules/analytics/components/RecentDetectionsDrawer';
+import {
+  ActiveTracksPanel,
+  TrackDetailsDrawer,
+  useActiveTracks,
+  type TrackedObjectItem,
+} from '../modules/tracking';
 import type { Camera } from '../types/camera';
 import styles from './MonitoringPage.module.css';
 
@@ -30,7 +36,17 @@ export const MonitoringPage: React.FC = () => {
   const [pickerSlotId, setPickerSlotId] = useState<string | null>(null);
   const [selectedCameraForDetails, setSelectedCameraForDetails] = useState<Camera | null>(null);
   const [isDetectionsOpen, setIsDetectionsOpen] = useState<boolean>(true);
+  const [isTracksOpen, setIsTracksOpen] = useState<boolean>(false);
+  const [selectedTrackForDetails, setSelectedTrackForDetails] = useState<TrackedObjectItem | null>(null);
   const [aiCapacityWarning, setAiCapacityWarning] = useState<string | null>(null);
+
+  const primaryActiveSlot = slots.find((s) => s.streamStatus === 'RUNNING' && s.camera) || slots.find((s) => s.camera !== null);
+  const primaryCamera = primaryActiveSlot?.camera || null;
+
+  const { tracks: primaryTracks } = useActiveTracks({
+    cameraId: primaryCamera?.id || null,
+    enabled: primaryCamera !== null,
+  });
 
   // Find assigned camera IDs for duplicate prevention
   const assignedCameraIds = slots
@@ -69,6 +85,8 @@ export const MonitoringPage: React.FC = () => {
         hasEmptySlots={hasEmptySlots}
         onToggleDetectionsFeed={() => setIsDetectionsOpen(!isDetectionsOpen)}
         isDetectionsFeedOpen={isDetectionsOpen}
+        onToggleTracksPanel={() => setIsTracksOpen(!isTracksOpen)}
+        isTracksPanelOpen={isTracksOpen}
       />
 
       {/* Main Content Area (Grid + Detections Drawer) */}
@@ -92,6 +110,23 @@ export const MonitoringPage: React.FC = () => {
           onClose={() => setIsDetectionsOpen(false)}
         />
       </div>
+
+      {/* Active Tracks Collapsible Panel */}
+      {isTracksOpen && (
+        <div style={{ padding: '0.75rem 1rem', background: '#090d16', borderTop: '1px solid #1e293b' }}>
+          <ActiveTracksPanel
+            tracks={primaryTracks}
+            selectedCameraCode={primaryCamera?.cameraCode}
+            onSelectTrack={(t) => setSelectedTrackForDetails(t)}
+          />
+        </div>
+      )}
+
+      {/* Track Details Inspection Drawer */}
+      <TrackDetailsDrawer
+        track={selectedTrackForDetails}
+        onClose={() => setSelectedTrackForDetails(null)}
+      />
 
       {/* Camera Selection Modal */}
       <CameraPicker

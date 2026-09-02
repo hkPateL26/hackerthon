@@ -1,0 +1,62 @@
+.overlayContainer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.svgOverlay {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.trackBoxPerson {
+  stroke: #10b981;
+  stroke-width: 2.5;
+  fill: rgba(16, 185, 129, 0.08);
+  filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.5));
+}
+
+.trackBoxVehicle {
+  stroke: #f59e0b;
+  stroke-width: 2.5;
+  fill: rgba(245, 158, 11, 0.08);
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.5));
+}
+
+.labelBgPerson {
+  fill: #065f46;
+  opacity: 0.9;
+}
+
+.labelBgVehicle {
+  fill: #92400e;
+  opacity: 0.9;
+}
+
+.labelText {
+  fill: #ffffff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  dominant-baseline: middle;
+}
+
+.trajectoryTrailPerson {
+  stroke: #34d399;
+  stroke-width: 2;
+  stroke-dasharray: 3 3;
+  fill: none;
+  opacity: 0.75;
+}
+
+.trajectoryTrailVehicle {
+  stroke: #fbbf24;
+  stroke-width: 2;
+  stroke-dasharray: 3 3;
+  fill: none;
+  opacity: 0.75;
+}

@@ -86,12 +86,13 @@ export class EventsService {
       bboxHeight: dto.bboxHeight,
       snapshotPath: dto.snapshotPath || null,
       source: dto.source || 'YOLOv8n',
+      trackId: dto.trackId ?? null,
       metadata: dto.metadata || {},
     });
 
     const saved = await this.eventRepo.save(event);
     this.logger.log(
-      `Ingested ${saved.detectedCategory} (${saved.detectedClass}, conf=${saved.confidence}) from camera ${camera.cameraCode}`,
+      `Ingested ${saved.detectedCategory} (${saved.detectedClass}, conf=${saved.confidence}${saved.trackId ? `, track=#${saved.trackId}` : ''}) from camera ${camera.cameraCode}`,
     );
 
     return this.toResponseDto(saved, camera, eventType);
@@ -238,6 +239,7 @@ export class EventsService {
         ? `/api/events/snapshots/${snapshotFileName}`
         : null,
       source: event.source,
+      trackId: event.trackId ?? null,
       metadata: event.metadata || {},
       createdAt: event.createdAt.toISOString(),
     };

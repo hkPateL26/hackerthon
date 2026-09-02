@@ -244,6 +244,37 @@ export class AiManagerService implements OnApplicationShutdown {
   }
 
   /**
+   * Fetch runtime active tracks from Python AI Engine
+   */
+  async getActiveTracks(cameraId: string): Promise<any> {
+    try {
+      const response = await fetch(
+        `${this.aiEngineUrl}/api/ai/sessions/${cameraId}/tracks`,
+        {
+          headers: { 'X-AI-Service-Key': this.aiServiceKey },
+        },
+      );
+
+      if (!response.ok) {
+        return {
+          cameraId,
+          sessionId: null,
+          activeTracks: [],
+        };
+      }
+
+      return await response.json();
+    } catch (err: any) {
+      this.logger.debug(`Could not reach AI Engine for active tracks: ${err.message}`);
+      return {
+        cameraId,
+        sessionId: null,
+        activeTracks: [],
+      };
+    }
+  }
+
+  /**
    * Clean up all AI sessions on application shutdown
    */
   async onApplicationShutdown() {

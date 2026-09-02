@@ -160,3 +160,16 @@ async def get_session(cameraId: str):
         lastProcessedAt=telemetry.last_processed_at,
         error=telemetry.error,
     )
+
+
+@router.get("/{cameraId}/tracks", dependencies=[Depends(verify_service_key)])
+async def get_camera_active_tracks(cameraId: str):
+    """Gets runtime active tracks for a camera."""
+    tracks_info = session_manager.get_active_tracks(cameraId)
+    if not tracks_info:
+        return {
+            "cameraId": cameraId,
+            "sessionId": None,
+            "activeTracks": [],
+        }
+    return tracks_info

@@ -100,6 +100,14 @@ export class IngestEventDto {
   source?: string;
 
   @ApiPropertyOptional({
+    description: 'Session-scoped integer track ID assigned by ByteTrack',
+    example: 17,
+  })
+  @IsOptional()
+  @IsNumber()
+  trackId?: number;
+
+  @ApiPropertyOptional({
     description: 'Arbitrary JSON telemetry / metadata',
   })
   @IsOptional()

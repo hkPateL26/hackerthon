@@ -9,6 +9,7 @@ import { CamerasModule } from './modules/cameras/cameras.module.js';
 import { StreamsModule } from './modules/streams/streams.module.js';
 import { EventsModule } from './modules/events/events.module.js';
 import { AiModule } from './modules/ai/ai.module.js';
+import { TracksModule } from './modules/tracks/tracks.module.js';
 import { DatabaseConfig } from './config/database.config.js';
 
 @Module({
@@ -44,6 +45,9 @@ import { DatabaseConfig } from './config/database.config.js';
 
     // AI Video Analytics Manager module
     AiModule,
+
+    // Multi-Object Tracking module
+    TracksModule,
   ],
   controllers: [AppController],
   providers: [AppService],

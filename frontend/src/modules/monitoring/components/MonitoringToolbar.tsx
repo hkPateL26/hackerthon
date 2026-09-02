@@ -17,6 +17,8 @@ interface MonitoringToolbarProps {
   hasEmptySlots: boolean;
   onToggleDetectionsFeed?: () => void;
   isDetectionsFeedOpen?: boolean;
+  onToggleTracksPanel?: () => void;
+  isTracksPanelOpen?: boolean;
 }
 
 export const MonitoringToolbar: React.FC<MonitoringToolbarProps> = ({
@@ -32,6 +34,8 @@ export const MonitoringToolbar: React.FC<MonitoringToolbarProps> = ({
   hasEmptySlots,
   onToggleDetectionsFeed,
   isDetectionsFeedOpen = false,
+  onToggleTracksPanel,
+  isTracksPanelOpen = false,
 }) => {
   return (
     <header className={styles.toolbar} aria-label="Monitoring Dashboard Controls">
@@ -61,6 +65,20 @@ export const MonitoringToolbar: React.FC<MonitoringToolbarProps> = ({
               id="toolbar-detection-feed-btn"
             >
               <span>🚨</span> {isDetectionsFeedOpen ? 'Hide Feed' : 'Live Feed'}
+            </button>
+          )}
+
+          {onToggleTracksPanel && (
+            <button
+              type="button"
+              className={`${styles.actionBtn} ${
+                isTracksPanelOpen ? styles.clearAllBtn : styles.addCameraBtn
+              }`}
+              onClick={onToggleTracksPanel}
+              title="Toggle Active Multi-Object Tracks Panel"
+              id="toolbar-tracks-panel-btn"
+            >
+              <span>🎯</span> {isTracksPanelOpen ? 'Hide Tracks' : 'Active Tracks'}
             </button>
           )}
 

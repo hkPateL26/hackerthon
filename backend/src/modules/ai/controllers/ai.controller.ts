@@ -102,4 +102,17 @@ export class AiController {
   ): Promise<AiSessionResponseDto> {
     return this.aiManagerService.getSession(cameraId);
   }
+
+  /**
+   * Get runtime active tracks from the active AI session
+   */
+  @Get(':cameraId/tracks')
+  @Roles(RoleName.ADMIN, RoleName.SUPERVISOR, RoleName.OPERATOR)
+  @ApiOperation({ summary: 'Get runtime active tracks for an active AI session' })
+  @ApiParam({ name: 'cameraId', description: 'Camera UUID' })
+  async getActiveTracks(
+    @Param('cameraId', new ParseUUIDPipe({ version: '4' })) cameraId: string,
+  ): Promise<any> {
+    return this.aiManagerService.getActiveTracks(cameraId);
+  }
 }

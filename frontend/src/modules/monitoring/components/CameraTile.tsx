@@ -6,6 +6,7 @@ import { VideoPlayer } from '../../../components/video/VideoPlayer';
 import { useAuthStore } from '../../../store/authStore';
 import { AIControlBadge } from '../../analytics/components/AIControlBadge';
 import { useAISession } from '../../analytics/hooks/useAISession';
+import { useActiveTracks, TrackBadge, TrackOverlay } from '../../tracking';
 import styles from './CameraTile.module.css';
 
 interface CameraTileProps {
@@ -52,6 +53,11 @@ export const CameraTile: React.FC<CameraTileProps> = ({
   } = useAISession({
     cameraId: camera?.id || null,
     onCapacityError,
+  });
+
+  const { tracks: activeTracks } = useActiveTracks({
+    cameraId: camera?.id || null,
+    enabled: streamStatus === 'RUNNING' && aiStatus === 'RUNNING',
   });
 
   // Toggle browser Fullscreen API on this tile
@@ -149,6 +155,10 @@ export const CameraTile: React.FC<CameraTileProps> = ({
         <div className={styles.headerRight}>
           {getRegistryBadge()}
           {getStreamBadge()}
+          <TrackBadge
+            isTracking={isRunning && aiStatus === 'RUNNING'}
+            activeCount={activeTracks.length}
+          />
           <AIControlBadge
             status={aiStatus}
             isLoading={isAiLoading}
@@ -161,16 +171,19 @@ export const CameraTile: React.FC<CameraTileProps> = ({
       </div>
 
       {/* Video Area */}
-      <div className={styles.videoArea}>
+      <div className={styles.videoArea} style={{ position: 'relative' }}>
         {isRunning && playbackUrl ? (
-          <VideoPlayer
-            src={playbackUrl}
-            isStreaming={true}
-            cameraName={camera.name}
-            cameraCode={camera.cameraCode}
-            autoPlay={true}
-            onRetry={() => onRetryStream(slot.slotId)}
-          />
+          <>
+            <VideoPlayer
+              src={playbackUrl}
+              isStreaming={true}
+              cameraName={camera.name}
+              cameraCode={camera.cameraCode}
+              autoPlay={true}
+              onRetry={() => onRetryStream(slot.slotId)}
+            />
+            <TrackOverlay tracks={activeTracks} />
+          </>
         ) : isStarting ? (
           <div className={styles.placeholder}>
             <div className={styles.spinner} />

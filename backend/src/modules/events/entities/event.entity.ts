@@ -70,6 +70,10 @@ export class EventEntity {
   @Column({ type: 'varchar', length: 50, default: 'YOLOv8n' })
   source!: string;
 
+  @Column({ name: 'track_id', type: 'integer', nullable: true })
+  @Index('idx_events_camera_track_id')
+  trackId?: number | null;
+
   @Column({ type: 'jsonb', default: {} })
   metadata!: Record<string, any>;
 

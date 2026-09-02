@@ -58,6 +58,9 @@ export class EventResponseDto {
   @ApiProperty()
   source!: string;
 
+  @ApiPropertyOptional()
+  trackId?: number | null;
+
   @ApiProperty()
   metadata!: Record<string, any>;
 

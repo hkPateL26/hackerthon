@@ -8,8 +8,9 @@ import os
 import time
 import logging
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from pathlib import Path
+import uuid
 import cv2
 import httpx
 
@@ -17,6 +18,7 @@ from src.config import settings
 from src.detectors.yolo_detector import YoloDetector, Detection
 from src.pipeline.frame_sampler import FrameSampler
 from src.pipeline.deduplicator import EventDeduplicator
+from src.tracking.track_manager import TrackManager
 
 logger = logging.getLogger("SessionManager")
 
@@ -64,6 +66,12 @@ class CameraAiSession:
 
         self.sampler: Optional[FrameSampler] = None
         self.deduplicator = EventDeduplicator(iou_threshold=0.6, window_seconds=3.0)
+        self.session_id: str = str(uuid.uuid4())
+        self.track_manager = TrackManager(
+            camera_id=camera_id,
+            session_id=self.session_id,
+            match_thresh=0.35,
+        )
         self.is_running = False
         self.worker_task: Optional[asyncio.Task] = None
         self._http_client = httpx.AsyncClient(timeout=5.0)
@@ -79,7 +87,7 @@ class CameraAiSession:
         self.is_running = True
         self.telemetry.status = "RUNNING"
         self.worker_task = asyncio.create_task(self._run_loop())
-        logger.info(f"AI session started for camera {self.camera_code} ({self.camera_id})")
+        logger.info(f"AI session started for camera {self.camera_code} ({self.camera_id}) with session_id {self.session_id}")
         return True
 
     async def _run_loop(self):
@@ -112,14 +120,21 @@ class CameraAiSession:
                     self.confidence_threshold,
                 )
 
-                # 3. Process detections and emit events
+                # 3. Multi-Object Tracking (ByteTrack)
+                self.track_manager.update(detections)
+
+                # 4. Process detections and emit events
                 for det in detections:
                     if self.deduplicator.should_emit(det):
                         self.telemetry.detections_count += 1
+                        track_id = self.track_manager.get_track_for_detection(det)
                         # Save snapshot JPEG to D: drive runtime/snapshots
-                        snapshot_path = await self._save_snapshot(frame, det)
+                        snapshot_path = await self._save_snapshot(frame, det, track_id)
                         # Dispatch event to NestJS
-                        await self._dispatch_event(frame, det, snapshot_path)
+                        await self._dispatch_event(frame, det, snapshot_path, track_id)
+
+                # 5. Periodically sync tracks to NestJS
+                await self.track_manager.sync_to_backend()
 
             except Exception as e:
                 logger.error(f"Error in inference loop for {self.camera_code}: {e}", exc_info=True)
@@ -127,7 +142,7 @@ class CameraAiSession:
 
         logger.info(f"Inference loop stopped for {self.camera_code}")
 
-    async def _save_snapshot(self, frame, det: Detection) -> Optional[str]:
+    async def _save_snapshot(self, frame, det: Detection, track_id: Optional[int] = None) -> Optional[str]:
         """Saves JPEG snapshot to D: drive runtime/snapshots."""
         try:
             timestamp = int(time.time() * 1000)
@@ -139,9 +154,14 @@ class CameraAiSession:
             x, y, w, h = [int(v) for v in det.bbox]
             color = (0, 255, 0) if det.category == "PERSON" else (0, 165, 255)
             cv2.rectangle(snap_img, (x, y), (x + w, y + h), color, 2)
+            label = (
+                f"{det.class_name} #{track_id} {int(det.confidence * 100)}%"
+                if track_id is not None
+                else f"{det.class_name} {int(det.confidence * 100)}%"
+            )
             cv2.putText(
                 snap_img,
-                f"{det.class_name} {int(det.confidence * 100)}%",
+                label,
                 (x, max(20, y - 5)),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.5,
@@ -156,7 +176,13 @@ class CameraAiSession:
             logger.warn(f"Failed to generate snapshot: {e}")
             return None
 
-    async def _dispatch_event(self, frame, det: Detection, snapshot_path: Optional[str]):
+    async def _dispatch_event(
+        self,
+        frame,
+        det: Detection,
+        snapshot_path: Optional[str],
+        track_id: Optional[int] = None,
+    ):
         """Dispatches structured event to NestJS backend with X-AI-Service-Key."""
         event_code = "PERSON_DETECTED" if det.category == "PERSON" else "VEHICLE_DETECTED"
         height, width = frame.shape[:2]
@@ -176,9 +202,11 @@ class CameraAiSession:
             "bboxHeight": det.bbox[3],
             "snapshotPath": snapshot_path,
             "source": "YOLOv8n",
+            "trackId": track_id,
             "metadata": {
                 "approxFps": self.telemetry.approx_fps,
                 "cameraCode": self.camera_code,
+                "sessionId": self.session_id,
             },
         }
 
@@ -207,6 +235,12 @@ class CameraAiSession:
                 pass
             self.worker_task = None
 
+        if hasattr(self, "track_manager") and self.track_manager:
+            try:
+                await self.track_manager.close()
+            except Exception as e:
+                logger.warning(f"Error closing track manager: {e}")
+
         if self.sampler:
             self.sampler.stop()
             self.sampler = None
@@ -214,6 +248,14 @@ class CameraAiSession:
         await self._http_client.aclose()
         self.telemetry.status = "STOPPED"
         logger.info(f"AI session for camera {self.camera_code} stopped cleanly.")
+
+    def get_active_tracks(self) -> Dict[str, Any]:
+        """Returns runtime active tracks snapshot for this camera session."""
+        return {
+            "cameraId": self.camera_id,
+            "sessionId": self.session_id,
+            "activeTracks": self.track_manager.get_active_tracks_snapshot() if hasattr(self, "track_manager") else [],
+        }
 
 
 class SessionManager:
@@ -288,6 +330,13 @@ class SessionManager:
 
     def list_sessions(self) -> List[SessionTelemetry]:
         return [s.telemetry for s in self.sessions.values()]
+
+    def get_active_tracks(self, camera_id: str) -> Optional[Dict[str, Any]]:
+        """Returns runtime active tracks for a camera if active session exists."""
+        session = self.sessions.get(camera_id)
+        if not session or not session.is_running:
+            return None
+        return session.get_active_tracks()
 
     async def stop_all(self):
         """Stops all active sessions cleanly."""
