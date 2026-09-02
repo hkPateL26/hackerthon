@@ -20,6 +20,7 @@ import {
   PaginatedCameraResponseDto,
 } from './dto/camera-response.dto.js';
 import { GeoJSONFeatureCollectionDto } from './dto/geojson-response.dto.js';
+import { GeoJsonQueryDto } from './dto/geojson-query.dto.js';
 import { CreateCameraGroupDto } from './dto/create-camera-group.dto.js';
 import { CameraMapper } from './mappers/camera.mapper.js';
 
@@ -330,15 +331,81 @@ export class CamerasService {
   }
 
   /**
-   * Return GeoJSON FeatureCollection of all active cameras (GIS-ready)
+   * Return GeoJSON FeatureCollection of cameras matching filters/bbox (GIS-ready)
    */
-  async getGeoJSON(): Promise<GeoJSONFeatureCollectionDto> {
-    const cameras = await this.cameraRepo.find({
-      where: { isActive: true },
-      relations: { district: true, policeStation: true },
-      order: { createdAt: 'DESC' },
-    });
+  async getGeoJSON(query?: GeoJsonQueryDto): Promise<GeoJSONFeatureCollectionDto> {
+    const qb = this.cameraRepo
+      .createQueryBuilder('camera')
+      .leftJoinAndSelect('camera.district', 'district')
+      .leftJoinAndSelect('camera.policeStation', 'policeStation')
+      .where('camera.deletedAt IS NULL');
 
+    // Default to active only unless explicitly filtered
+    if (query?.isActive !== undefined) {
+      qb.andWhere('camera.isActive = :isActive', { isActive: query.isActive });
+    } else {
+      qb.andWhere('camera.isActive = :isActive', { isActive: true });
+    }
+
+    if (query?.districtId) {
+      qb.andWhere('camera.districtId = :districtId', { districtId: query.districtId });
+    }
+
+    if (query?.policeStationId) {
+      qb.andWhere('camera.policeStationId = :policeStationId', {
+        policeStationId: query.policeStationId,
+      });
+    }
+
+    if (query?.status) {
+      qb.andWhere('camera.status = :status', { status: query.status });
+    }
+
+    if (query?.cameraType) {
+      qb.andWhere('camera.cameraType = :cameraType', { cameraType: query.cameraType });
+    }
+
+    if (query?.search && query.search.trim()) {
+      const term = `%${query.search.trim()}%`;
+      qb.andWhere(
+        '(camera.cameraCode ILIKE :term OR camera.name ILIKE :term OR camera.vendor ILIKE :term OR camera.model ILIKE :term OR camera.locationName ILIKE :term)',
+        { term },
+      );
+    }
+
+    // Spatial bounding box filter using PostGIS ST_MakeEnvelope and GIST index
+    if (query?.bbox) {
+      const parts = query.bbox.split(',').map((p) => parseFloat(p.trim()));
+      if (parts.length !== 4 || parts.some((n) => isNaN(n))) {
+        throw new BadRequestException(
+          'Invalid bbox format. Expected: minLng,minLat,maxLng,maxLat',
+        );
+      }
+
+      const [minLng, minLat, maxLng, maxLat] = parts;
+
+      if (minLng < -180 || minLng > 180 || maxLng < -180 || maxLng > 180) {
+        throw new BadRequestException('Longitude must be between -180 and 180');
+      }
+      if (minLat < -90 || minLat > 90 || maxLat < -90 || maxLat > 90) {
+        throw new BadRequestException('Latitude must be between -90 and 90');
+      }
+      if (minLng > maxLng) {
+        throw new BadRequestException('minLng cannot be greater than maxLng');
+      }
+      if (minLat > maxLat) {
+        throw new BadRequestException('minLat cannot be greater than maxLat');
+      }
+
+      qb.andWhere(
+        'ST_Intersects(camera.geom, ST_MakeEnvelope(:minLng, :minLat, :maxLng, :maxLat, 4326))',
+        { minLng, minLat, maxLng, maxLat },
+      );
+    }
+
+    qb.orderBy('camera.createdAt', 'DESC');
+
+    const cameras = await qb.getMany();
     return CameraMapper.toGeoJSON(cameras);
   }
 

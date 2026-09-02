@@ -24,6 +24,7 @@ describe('MainLayout', () => {
   it('should render all navigation items', () => {
     renderWithRouter(<MainLayout />)
     expect(screen.getByText('Dashboard')).toBeInTheDocument()
+    expect(screen.getByText('Map / GIS')).toBeInTheDocument()
     expect(screen.getByText('Cameras')).toBeInTheDocument()
     expect(screen.getByText('Alerts')).toBeInTheDocument()
     expect(screen.getByText('Incidents')).toBeInTheDocument()
@@ -42,7 +43,7 @@ describe('MainLayout', () => {
 
   it('should render phase indicator', () => {
     renderWithRouter(<MainLayout />)
-    expect(screen.getByText('Phase 2 — Auth & RBAC')).toBeInTheDocument()
+    expect(screen.getByText('Phase 4 — GIS Mapping')).toBeInTheDocument()
   })
 
   it('should render sign out button', () => {

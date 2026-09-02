@@ -56,13 +56,24 @@ describe('CamerasService', () => {
   };
 
   beforeEach(() => {
+    const defaultQbMock: any = {
+      leftJoinAndSelect: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      andWhere: vi.fn().mockReturnThis(),
+      orderBy: vi.fn().mockReturnThis(),
+      skip: vi.fn().mockReturnThis(),
+      take: vi.fn().mockReturnThis(),
+      getManyAndCount: vi.fn().mockResolvedValue([[sampleCameraEntity], 1]),
+      getMany: vi.fn().mockResolvedValue([sampleCameraEntity]),
+    };
+
     mockCameraRepo = {
       findOne: vi.fn(),
       find: vi.fn(),
       findByIds: vi.fn(),
       create: vi.fn((dto) => ({ ...dto, id: 'new-uuid', createdAt: new Date(), updatedAt: new Date() })),
       save: vi.fn((entity) => Promise.resolve({ ...entity, id: entity.id || 'new-uuid' })),
-      createQueryBuilder: vi.fn(),
+      createQueryBuilder: vi.fn().mockReturnValue(defaultQbMock),
     };
 
     mockDistrictRepo = {
@@ -231,7 +242,14 @@ describe('CamerasService', () => {
 
   describe('getGeoJSON', () => {
     it('should return RFC 7946 GeoJSON FeatureCollection with [lon, lat] coordinates', async () => {
-      mockCameraRepo.find.mockResolvedValue([sampleCameraEntity]);
+      const qbMock: any = {
+        leftJoinAndSelect: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        andWhere: vi.fn().mockReturnThis(),
+        orderBy: vi.fn().mockReturnThis(),
+        getMany: vi.fn().mockResolvedValue([sampleCameraEntity]),
+      };
+      mockCameraRepo.createQueryBuilder.mockReturnValue(qbMock);
 
       const geojson = await service.getGeoJSON();
       expect(geojson.type).toBe('FeatureCollection');
@@ -242,6 +260,44 @@ describe('CamerasService', () => {
       expect(geojson.features[0].properties.cameraCode).toBe('CAM-AHM-001');
       expect(geojson.features[0].properties.district).toBe('Ahmedabad City');
       expect((geojson.features[0].properties as any).rtspUrl).toBeUndefined();
+    });
+
+    it('should apply filters and spatial bbox to GeoJSON query', async () => {
+      const qbMock: any = {
+        leftJoinAndSelect: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        andWhere: vi.fn().mockReturnThis(),
+        orderBy: vi.fn().mockReturnThis(),
+        getMany: vi.fn().mockResolvedValue([sampleCameraEntity]),
+      };
+      mockCameraRepo.createQueryBuilder.mockReturnValue(qbMock);
+
+      const geojson = await service.getGeoJSON({
+        districtId: sampleDistrict.id,
+        status: CameraStatus.ONLINE,
+        search: 'Iskcon',
+        bbox: '72.4,23.0,72.6,23.1',
+      });
+
+      expect(geojson.features).toHaveLength(1);
+      expect(qbMock.andWhere).toHaveBeenCalledWith(
+        'camera.districtId = :districtId',
+        { districtId: sampleDistrict.id },
+      );
+      expect(qbMock.andWhere).toHaveBeenCalledWith(
+        'camera.status = :status',
+        { status: CameraStatus.ONLINE },
+      );
+      expect(qbMock.andWhere).toHaveBeenCalledWith(
+        'ST_Intersects(camera.geom, ST_MakeEnvelope(:minLng, :minLat, :maxLng, :maxLat, 4326))',
+        { minLng: 72.4, minLat: 23.0, maxLng: 72.6, maxLat: 23.1 },
+      );
+    });
+
+    it('should throw BadRequestException on out-of-range bbox coordinates', async () => {
+      await expect(
+        service.getGeoJSON({ bbox: '72.4,120.0,72.6,23.1' }),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });

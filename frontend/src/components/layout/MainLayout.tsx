@@ -4,6 +4,7 @@ import styles from './MainLayout.module.css';
 
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: '📊' },
+  { path: '/map', label: 'Map / GIS', icon: '🗺️' },
   { path: '/cameras', label: 'Cameras', icon: '📷' },
   { path: '/alerts', label: 'Alerts', icon: '🚨' },
   { path: '/incidents', label: 'Incidents', icon: '📋' },
@@ -57,7 +58,7 @@ export function MainLayout() {
         </nav>
 
         <div className={styles.sidebarFooter}>
-          <div className={styles.phase}>Phase 2 — Auth & RBAC</div>
+          <div className={styles.phase}>Phase 4 — GIS Mapping</div>
         </div>
       </aside>
 

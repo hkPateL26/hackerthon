@@ -9,6 +9,7 @@ import type {
   PoliceStation,
   CameraStatus,
 } from '../types/camera';
+import type { CameraGeoJSONFeatureCollection } from '../types/gis';
 
 export const cameraService = {
   /**
@@ -115,10 +116,24 @@ export const cameraService = {
   },
 
   /**
-   * Get GeoJSON FeatureCollection (for future Phase 4 GIS)
+   * Get GeoJSON FeatureCollection with optional filters and spatial bbox
    */
-  async getGeoJSON(): Promise<any> {
-    const response = await apiClient.get('/api/cameras/geojson');
+  async getGeoJSON(
+    params: Partial<CameraQueryParams> & { bbox?: string } = {},
+  ): Promise<CameraGeoJSONFeatureCollection> {
+    const cleanParams: Record<string, any> = {};
+    if (params.search) cleanParams.search = params.search;
+    if (params.districtId) cleanParams.districtId = params.districtId;
+    if (params.policeStationId) cleanParams.policeStationId = params.policeStationId;
+    if (params.status) cleanParams.status = params.status;
+    if (params.cameraType) cleanParams.cameraType = params.cameraType;
+    if (params.isActive !== undefined) cleanParams.isActive = params.isActive;
+    if (params.bbox) cleanParams.bbox = params.bbox;
+
+    const response = await apiClient.get<CameraGeoJSONFeatureCollection>(
+      '/api/cameras/geojson',
+      { params: cleanParams },
+    );
     return response.data;
   },
 };

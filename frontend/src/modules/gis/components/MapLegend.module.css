@@ -1,0 +1,80 @@
+.legendContainer {
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(51, 65, 85, 0.7);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #e2e8f0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  font-size: 12px;
+  min-width: 170px;
+  pointer-events: auto;
+}
+
+.legendHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+}
+
+.legendTitle {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.totalBadge {
+  background: rgba(30, 41, 59, 0.9);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.legendList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statusDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.statusSymbol {
+  font-size: 10px;
+  color: #94a3b8;
+  width: 10px;
+}
+
+.statusLabel {
+  flex: 1;
+  font-weight: 500;
+  color: #cbd5e1;
+}
+
+.countNumber {
+  font-weight: 700;
+  color: #f8fafc;
+  background: rgba(30, 41, 59, 0.6);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 11px;
+}

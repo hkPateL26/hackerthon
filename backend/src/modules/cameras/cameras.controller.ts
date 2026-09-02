@@ -34,6 +34,7 @@ import {
   PaginatedCameraResponseDto,
 } from './dto/camera-response.dto.js';
 import { GeoJSONFeatureCollectionDto } from './dto/geojson-response.dto.js';
+import { GeoJsonQueryDto } from './dto/geojson-query.dto.js';
 import { CreateCameraGroupDto } from './dto/create-camera-group.dto.js';
 
 @ApiTags('Cameras')
@@ -64,11 +65,21 @@ export class CamerasController {
   }
 
   @Get('geojson')
-  @ApiOperation({ summary: 'Get all active cameras as RFC 7946 GeoJSON FeatureCollection (GIS-ready)' })
-  @ApiResponse({ status: 200, description: 'GeoJSON FeatureCollection', type: GeoJSONFeatureCollectionDto })
+  @ApiOperation({
+    summary:
+      'Get cameras as RFC 7946 GeoJSON FeatureCollection with optional filters and spatial bbox',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'GeoJSON FeatureCollection',
+    type: GeoJSONFeatureCollectionDto,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid query parameters or bbox format' })
   @ApiResponse({ status: 401, description: 'Unauthenticated' })
-  async getGeoJSON(): Promise<GeoJSONFeatureCollectionDto> {
-    return this.camerasService.getGeoJSON();
+  async getGeoJSON(
+    @Query() queryDto: GeoJsonQueryDto,
+  ): Promise<GeoJSONFeatureCollectionDto> {
+    return this.camerasService.getGeoJSON(queryDto);
   }
 
   @Get('districts')

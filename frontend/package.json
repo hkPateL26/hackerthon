@@ -11,10 +11,15 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@types/leaflet": "^1.9.22",
+    "@types/supercluster": "^7.1.3",
     "axios": "^1.20.0",
+    "leaflet": "^1.9.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.18.3",
+    "supercluster": "^9.0.0",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
