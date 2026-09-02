@@ -11,6 +11,11 @@ import {
   useActiveTracks,
   type TrackedObjectItem,
 } from '../modules/tracking';
+import {
+  RecentANPRPanel,
+  ANPRDetailsDrawer,
+  type AnprResult,
+} from '../modules/anpr';
 import type { Camera } from '../types/camera';
 import styles from './MonitoringPage.module.css';
 
@@ -38,6 +43,8 @@ export const MonitoringPage: React.FC = () => {
   const [isDetectionsOpen, setIsDetectionsOpen] = useState<boolean>(true);
   const [isTracksOpen, setIsTracksOpen] = useState<boolean>(false);
   const [selectedTrackForDetails, setSelectedTrackForDetails] = useState<TrackedObjectItem | null>(null);
+  const [isANPROpen, setIsANPROpen] = useState<boolean>(false);
+  const [selectedAnprForDetails, setSelectedAnprForDetails] = useState<AnprResult | null>(null);
   const [aiCapacityWarning, setAiCapacityWarning] = useState<string | null>(null);
 
   const primaryActiveSlot = slots.find((s) => s.streamStatus === 'RUNNING' && s.camera) || slots.find((s) => s.camera !== null);
@@ -87,6 +94,8 @@ export const MonitoringPage: React.FC = () => {
         isDetectionsFeedOpen={isDetectionsOpen}
         onToggleTracksPanel={() => setIsTracksOpen(!isTracksOpen)}
         isTracksPanelOpen={isTracksOpen}
+        onToggleANPRPanel={() => setIsANPROpen(!isANPROpen)}
+        isANPRPanelOpen={isANPROpen}
       />
 
       {/* Main Content Area (Grid + Detections Drawer) */}
@@ -126,6 +135,20 @@ export const MonitoringPage: React.FC = () => {
       <TrackDetailsDrawer
         track={selectedTrackForDetails}
         onClose={() => setSelectedTrackForDetails(null)}
+      />
+
+      {/* Recent ANPR Recognition Panel */}
+      <RecentANPRPanel
+        isOpen={isANPROpen}
+        onClose={() => setIsANPROpen(false)}
+        onSelectResult={(r) => setSelectedAnprForDetails(r)}
+        selectedCameraId={primaryCamera?.id}
+      />
+
+      {/* ANPR Observation Details Drawer */}
+      <ANPRDetailsDrawer
+        result={selectedAnprForDetails}
+        onClose={() => setSelectedAnprForDetails(null)}
       />
 
       {/* Camera Selection Modal */}

@@ -19,6 +19,7 @@ from src.detectors.yolo_detector import YoloDetector, Detection
 from src.pipeline.frame_sampler import FrameSampler
 from src.pipeline.deduplicator import EventDeduplicator
 from src.tracking.track_manager import TrackManager
+from src.anpr.anpr_manager import AnprManager
 
 logger = logging.getLogger("SessionManager")
 
@@ -71,6 +72,10 @@ class CameraAiSession:
             camera_id=camera_id,
             session_id=self.session_id,
             match_thresh=0.35,
+        )
+        self.anpr_manager = AnprManager(
+            camera_id=camera_id,
+            session_id=self.session_id,
         )
         self.is_running = False
         self.worker_task: Optional[asyncio.Task] = None
@@ -125,13 +130,28 @@ class CameraAiSession:
 
                 # 4. Process detections and emit events
                 for det in detections:
+                    track_id = self.track_manager.get_track_for_detection(det)
+
                     if self.deduplicator.should_emit(det):
                         self.telemetry.detections_count += 1
-                        track_id = self.track_manager.get_track_for_detection(det)
                         # Save snapshot JPEG to D: drive runtime/snapshots
                         snapshot_path = await self._save_snapshot(frame, det, track_id)
                         # Dispatch event to NestJS
                         await self._dispatch_event(frame, det, snapshot_path, track_id)
+
+                    # 4b. Automatic Number Plate Recognition (ANPR) for VEHICLE category
+                    if det.category == "VEHICLE":
+                        try:
+                            await asyncio.to_thread(
+                                self.anpr_manager.process_vehicle,
+                                frame,
+                                det.bbox,
+                                det.confidence,
+                                det.class_name,
+                                track_id,
+                            )
+                        except Exception as anpr_err:
+                            logger.warning(f"ANPR vehicle processing error: {anpr_err}")
 
                 # 5. Periodically sync tracks to NestJS
                 await self.track_manager.sync_to_backend()
@@ -240,6 +260,12 @@ class CameraAiSession:
                 await self.track_manager.close()
             except Exception as e:
                 logger.warning(f"Error closing track manager: {e}")
+
+        if hasattr(self, "anpr_manager") and self.anpr_manager:
+            try:
+                await self.anpr_manager.close()
+            except Exception as e:
+                logger.warning(f"Error closing ANPR manager: {e}")
 
         if self.sampler:
             self.sampler.stop()

@@ -10,6 +10,7 @@ import { StreamsModule } from './modules/streams/streams.module.js';
 import { EventsModule } from './modules/events/events.module.js';
 import { AiModule } from './modules/ai/ai.module.js';
 import { TracksModule } from './modules/tracks/tracks.module.js';
+import { AnprModule } from './modules/anpr/anpr.module.js';
 import { DatabaseConfig } from './config/database.config.js';
 
 @Module({
@@ -48,6 +49,9 @@ import { DatabaseConfig } from './config/database.config.js';
 
     // Multi-Object Tracking module
     TracksModule,
+
+    // Automatic Number Plate Recognition (ANPR) module
+    AnprModule,
   ],
   controllers: [AppController],
   providers: [AppService],

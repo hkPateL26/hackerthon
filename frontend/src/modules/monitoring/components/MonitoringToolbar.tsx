@@ -19,6 +19,8 @@ interface MonitoringToolbarProps {
   isDetectionsFeedOpen?: boolean;
   onToggleTracksPanel?: () => void;
   isTracksPanelOpen?: boolean;
+  onToggleANPRPanel?: () => void;
+  isANPRPanelOpen?: boolean;
 }
 
 export const MonitoringToolbar: React.FC<MonitoringToolbarProps> = ({
@@ -36,6 +38,8 @@ export const MonitoringToolbar: React.FC<MonitoringToolbarProps> = ({
   isDetectionsFeedOpen = false,
   onToggleTracksPanel,
   isTracksPanelOpen = false,
+  onToggleANPRPanel,
+  isANPRPanelOpen = false,
 }) => {
   return (
     <header className={styles.toolbar} aria-label="Monitoring Dashboard Controls">
@@ -79,6 +83,20 @@ export const MonitoringToolbar: React.FC<MonitoringToolbarProps> = ({
               id="toolbar-tracks-panel-btn"
             >
               <span>🎯</span> {isTracksPanelOpen ? 'Hide Tracks' : 'Active Tracks'}
+            </button>
+          )}
+
+          {onToggleANPRPanel && (
+            <button
+              type="button"
+              className={`${styles.actionBtn} ${
+                isANPRPanelOpen ? styles.clearAllBtn : styles.addCameraBtn
+              }`}
+              onClick={onToggleANPRPanel}
+              title="Toggle Recent License Plates (ANPR) Feed"
+              id="toolbar-anpr-panel-btn"
+            >
+              <span>🚗</span> {isANPRPanelOpen ? 'Hide ANPR' : 'Recent ANPR'}
             </button>
           )}
 

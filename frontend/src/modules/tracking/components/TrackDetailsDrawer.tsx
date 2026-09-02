@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import type { TrackedObjectItem } from '../types/tracking';
+import { anprService } from '../../anpr';
 import styles from './TrackDetailsDrawer.module.css';
 
 interface TrackDetailsDrawerProps {
@@ -11,6 +12,28 @@ export const TrackDetailsDrawer: React.FC<TrackDetailsDrawerProps> = ({
   track,
   onClose,
 }) => {
+  const [anprResult, setAnprResult] = useState<any>(null);
+
+  useEffect(() => {
+    if (track && track.category === 'VEHICLE' && track.trackId) {
+      anprService
+        .getRecentAnpr({
+          trackId: track.trackId,
+          sessionId: track.sessionId || undefined,
+        })
+        .then((res) => {
+          if (res.items && res.items.length > 0) {
+            setAnprResult(res.items[0]);
+          } else {
+            setAnprResult(null);
+          }
+        })
+        .catch(() => setAnprResult(null));
+    } else {
+      setAnprResult(null);
+    }
+  }, [track]);
+
   if (!track) return null;
 
   const history = track.metadata?.history || [];
@@ -37,6 +60,32 @@ export const TrackDetailsDrawer: React.FC<TrackDetailsDrawerProps> = ({
             <span className={styles.label}>Category:</span>
             <span className={styles.value}>{track.category}</span>
           </div>
+
+          {track.category === 'VEHICLE' && (
+            <div
+              className={styles.detailRow}
+              style={{
+                background: 'rgba(59, 130, 246, 0.1)',
+                padding: '6px 8px',
+                borderRadius: '4px',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+              }}
+            >
+              <span className={styles.label}>ANPR Plate:</span>
+              <span
+                className={styles.value}
+                style={{
+                  fontFamily: 'monospace',
+                  fontWeight: 700,
+                  color: '#38bdf8',
+                }}
+              >
+                {anprResult
+                  ? `${anprResult.plateTextNormalized || anprResult.plateTextRaw} (${Math.round((anprResult.finalConfidence || 0) * 100)}%)`
+                  : 'Pending / Not observed'}
+              </span>
+            </div>
+          )}
 
           <div className={styles.detailRow}>
             <span className={styles.label}>Detected Class:</span>

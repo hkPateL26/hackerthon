@@ -7,6 +7,7 @@ import { useAuthStore } from '../../../store/authStore';
 import { AIControlBadge } from '../../analytics/components/AIControlBadge';
 import { useAISession } from '../../analytics/hooks/useAISession';
 import { useActiveTracks, TrackBadge, TrackOverlay } from '../../tracking';
+import { ANPRBadge } from '../../anpr';
 import styles from './CameraTile.module.css';
 
 interface CameraTileProps {
@@ -158,6 +159,9 @@ export const CameraTile: React.FC<CameraTileProps> = ({
           <TrackBadge
             isTracking={isRunning && aiStatus === 'RUNNING'}
             activeCount={activeTracks.length}
+          />
+          <ANPRBadge
+            active={isRunning && aiStatus === 'RUNNING'}
           />
           <AIControlBadge
             status={aiStatus}
